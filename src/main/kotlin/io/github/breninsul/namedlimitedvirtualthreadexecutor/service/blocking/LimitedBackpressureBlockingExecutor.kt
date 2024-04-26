@@ -1,71 +1,52 @@
 /*
- * Copyright (c) 2023 Alcosi Group Ltd. and affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * MIT License
+ * Copyright (c) 2024 BreninSul
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-package com.alcosi.lib.executors
+package io.github.breninsul.namedlimitedvirtualthreadexecutor.service.blocking
 
-import org.apache.commons.lang3.concurrent.BasicThreadFactory
-import java.time.Duration
+import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.VirtualNamedLimitedThreadFactory
+import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.exception.ChainUncaughtExceptionHandler
+import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.exception.LoggingUncaughtExceptionHandler
+import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.exception.UnwrappingUncaughtExceptionHandler
+import java.lang.Thread.UncaughtExceptionHandler
 import java.util.concurrent.*
-import java.util.logging.Level
-import java.util.logging.Logger
 
-open class NormalThreadPoolExecutor protected constructor(
-    corePoolSize: Int,
-    maximumPoolSize: Int,
-    keepAliveTime: Duration,
-    workQueue: BlockingQueue<Runnable?>?,
-    threadFactory: ThreadFactory?,
-    handler: RejectedExecutionHandler?,
-) : ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime.toMillis(), TimeUnit.MILLISECONDS, workQueue, threadFactory, handler) {
-    override fun afterExecute(
-        r: Runnable?,
-        t: Throwable?,
-    ) {
-        if (t != null) {
-            logger.log(Level.SEVERE, "Exception in thread ${Thread.currentThread().name}.", t)
-        } else {
-            logger.log(Level.CONFIG, "Tsk ${Thread.currentThread().name} completed ")
-        }
-        super.afterExecute(r, t)
-    }
+open class LimitedBackpressureBlockingExecutor(
+     maxParallelJobs: Int,
+     workQueue: BlockingQueue<Runnable?>,
+     factory: ThreadFactory,
+     handler: RejectedExecutionHandler,
+) : ExecutorService by ThreadPoolExecutor(maxParallelJobs, maxParallelJobs, 0L, TimeUnit.MILLISECONDS, workQueue, factory, handler) {
 
     companion object {
-        val logger = Logger.getLogger(this::class.java.name)
-        protected val UNCAUGHT_EXCEPTION_HANDLER = UncaughtExceptionHandler()
         protected val WAITING_REJECTED_EXECUTOR = WaitingRejectedExecutor()
 
-        fun build(
-            threads: Int,
-            name: String,
-            keepAlive: Duration,
-        ): NormalThreadPoolExecutor {
-            val factory =
-                BasicThreadFactory.Builder()
-                    .namingPattern("$name-%d")
-                    .daemon(false)
-                    .uncaughtExceptionHandler(UNCAUGHT_EXCEPTION_HANDLER)
-                    .priority(Thread.NORM_PRIORITY)
-                    .build()
-            return NormalThreadPoolExecutor(
-                threads,
-                threads,
-                keepAlive,
-                LinkedBlockingQueue(),
-                factory,
+        fun buildVirtual(
+            threadNamePrefix: String,
+            maxParallelJobs: Int,
+            uncaughtExceptionHandler:UncaughtExceptionHandler = ChainUncaughtExceptionHandler(listOf(LoggingUncaughtExceptionHandler(), UnwrappingUncaughtExceptionHandler())),
+            inheritThreadLocals:Boolean?=null
+        ): LimitedBackpressureBlockingExecutor {
+            return LimitedBackpressureBlockingExecutor(
+                maxParallelJobs,
+                LinkedBlockingQueue(maxParallelJobs),
+                VirtualNamedLimitedThreadFactory(threadNamePrefix, null,uncaughtExceptionHandler,inheritThreadLocals),
                 WAITING_REJECTED_EXECUTOR,
             )
         }
