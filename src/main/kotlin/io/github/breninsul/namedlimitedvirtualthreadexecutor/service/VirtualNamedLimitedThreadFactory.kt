@@ -21,16 +21,16 @@
 package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
 import java.util.concurrent.Semaphore
-import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicLong
 
 open class VirtualNamedLimitedThreadFactory(val threadNamePrefix: String,
                                             maxParallelJobs: Int? = null,
                                             val uncaughtExceptionHandler: Thread.UncaughtExceptionHandler?=null,
                                             val inheritThreadLocals:Boolean?=null
-) :
-    ThreadFactory {
-    protected open val count = AtomicLong(0)
+) : CountedThreadFactory {
+
+    protected open val activeTasksCount = AtomicLong(0)
+    protected open val totalTasksCount = AtomicLong(0)
     protected open val semaphore = maxParallelJobs?.let { Semaphore(it) }
 
     open class LimitedRunnable(protected val semaphore: Semaphore, protected val parentTask: Runnable) : Runnable {
@@ -44,25 +44,35 @@ open class VirtualNamedLimitedThreadFactory(val threadNamePrefix: String,
                 semaphore.release(1)
             }
         }
-
     }
-
-    override fun newThread(task: Runnable): Thread {
-        val decoratedTask =
-            if (semaphore == null) {
-                task
-            } else {
-                LimitedRunnable(semaphore!!, task)
+    open class CountedRunnable(protected val count:AtomicLong ,protected val parentTask: Runnable) : Runnable {
+        override fun run() {
+            count.incrementAndGet()
+            try {
+                parentTask.run()
+            } finally {
+                count.decrementAndGet()
             }
-        val threadBuilder = Thread.ofVirtual().name("$threadNamePrefix-${count.incrementAndGet()}")
-        if (uncaughtExceptionHandler!=null) {
-            threadBuilder.uncaughtExceptionHandler(uncaughtExceptionHandler)
         }
-        if (inheritThreadLocals!=null){
-            threadBuilder.inheritInheritableThreadLocals(inheritThreadLocals)
-        }
-        val thread = threadBuilder.unstarted(decoratedTask)
-        return thread
     }
-
+    override fun newThread(task: Runnable): Thread {
+        totalTasksCount.incrementAndGet()
+        try {
+            val decoratedTask = if (semaphore == null) task else LimitedRunnable(semaphore!!, task)
+            val countedTask = CountedRunnable(activeTasksCount, decoratedTask)
+            val threadBuilder = Thread.ofVirtual().name("$threadNamePrefix-${activeTasksCount.incrementAndGet()}")
+            if (uncaughtExceptionHandler != null) {
+                threadBuilder.uncaughtExceptionHandler(uncaughtExceptionHandler)
+            }
+            if (inheritThreadLocals != null) {
+                threadBuilder.inheritInheritableThreadLocals(inheritThreadLocals)
+            }
+            val thread = threadBuilder.unstarted(countedTask)
+            return thread
+        }finally {
+            totalTasksCount.decrementAndGet()
+        }
+    }
+    override fun getActiveTasksCount() = activeTasksCount.get()
+    override fun getTotalTasksCount(): Long =totalTasksCount.get()
 }

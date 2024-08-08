@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     val kotlinVersion = "1.9.23"
-    val springBootVersion = "3.2.5"
+    val springBootVersion = "3.3.2"
     id("java")
     id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.1.1"
     id("org.springframework.boot") version springBootVersion
@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "io.github.breninsul"
-version = "1.0.0"
+version = "1.0.1"
 
 val javaVersion = JavaVersion.VERSION_21
 

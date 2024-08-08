@@ -20,24 +20,9 @@
 
 package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
-interface Ordered {
-    val order: Int
+import java.util.concurrent.ThreadFactory
 
-    object OrderedComparator : Comparator<Any> {
-        override fun compare(o1: Any?, o2: Any?): Int {
-            return if (o1 is Ordered) {
-                if (o2 is Ordered) {
-                    o1.order.compareTo(o2.order)
-                } else {
-                    -1
-                }
-            } else {
-                if (o2 is Ordered) {
-                    1
-                } else {
-                    0
-                }
-            }
-        }
-    }
+interface CountedThreadFactory:ThreadFactory {
+    fun getActiveTasksCount():Long
+    fun getTotalTasksCount():Long
 }

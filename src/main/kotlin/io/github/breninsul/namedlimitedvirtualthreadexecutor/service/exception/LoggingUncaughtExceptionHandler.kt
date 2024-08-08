@@ -24,10 +24,31 @@ import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.Ordered
 import java.util.logging.Level
 import java.util.logging.Logger
 
+/**
+ * This class represents a handler for uncaught exceptions in threads,
+ * which logs these exceptions.
+ *
+ * @property exceptionLoggingLevel The logging level for exceptions. Defaults to severe.
+ * @property order The order in which the handler handles the exceptions.
+ *
+ * @constructor Creates a new instance of LoggingUncaughtExceptionHandler.
+ *
+ * @param exceptionLoggingLevel The logging level for exceptions. If not specified, defaults to severe.
+ *
+ * @implements Thread.UncaughtExceptionHandler This class can handle uncaught exceptions in threads.
+ * @implements Ordered This class can be ordered.
+ */
 open class LoggingUncaughtExceptionHandler (
    protected open val exceptionLoggingLevel: Level?=Level.SEVERE,
 ): Thread.UncaughtExceptionHandler,Ordered {
     override val order: Int = 0
+
+    /**
+     * Overrides the default uncaughtException function from the 'Thread.UncaughtExceptionHandler' Interface. Writes the details of an unhandled exception in a certain Thread to a logger.
+     *
+     * @param t Thread where the exception happened. Can be null if not specified.
+     * @param e Throwable object containing details about the exception.
+     */
     override fun uncaughtException(
         t: Thread?,
         e: Throwable?,

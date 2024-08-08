@@ -20,15 +20,15 @@
 
 package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
-import org.springframework.core.task.TaskExecutor
-import java.util.concurrent.ThreadFactory
+open class VirtualTaskExecutor(threadNamePrefix: String, maxParallelJobs: Int? = null) : CountedTaskExecutor {
 
-open class VirtualTaskExecutor(threadNamePrefix: String, maxParallelJobs: Int? = null) : TaskExecutor {
-    protected open val virtualThreadFactory: ThreadFactory =
+    protected open val virtualThreadFactory: CountedThreadFactory =
         VirtualNamedLimitedThreadFactory(threadNamePrefix, maxParallelJobs)
 
     override fun execute(task: Runnable) {
-        virtualThreadFactory.newThread(task).start()
+            virtualThreadFactory.newThread(task).start()
     }
+    override fun getActiveTasksCount() = virtualThreadFactory.getActiveTasksCount()
+    override fun getTotalTasksCount(): Long =virtualThreadFactory.getTotalTasksCount()
 
 }

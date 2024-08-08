@@ -23,10 +23,21 @@ package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-open class VirtualNamedLimitedExecutorService(threadNamePrefix: String, maxParallelJobs: Int? = null) :
-    ExecutorService by Executors.newThreadPerTaskExecutor(
+open class VirtualNamedLimitedExecutorService(
+    threadNamePrefix: String,
+    maxParallelJobs: Int? = null,
+    protected open val threadFactory: CountedThreadFactory =
         VirtualNamedLimitedThreadFactory(
             threadNamePrefix,
-            maxParallelJobs
+            maxParallelJobs,
         )
-    )
+) : CountedExecutorService,
+    ExecutorService by Executors.newThreadPerTaskExecutor(threadFactory) {
+    override fun getActiveTasksCount(): Long {
+        return threadFactory.getActiveTasksCount()
+    }
+
+    override fun getTotalTasksCount(): Long {
+        return threadFactory.getTotalTasksCount()
+    }
+}

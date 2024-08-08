@@ -25,6 +25,13 @@ import java.util.concurrent.ExecutionException
 
 open class UnwrappingUncaughtExceptionHandler (): Thread.UncaughtExceptionHandler, Ordered {
     override val order: Int = 10
+
+    /**
+     * This property represents the order of the exception handler.
+     * The order determines the sequence in which the handlers will be executed in case of an uncaught exception.
+     * The handler with a lower order value will be executed before a handler with a higher order value.
+     * @return an Int value representing the order of the exception handler.
+     */
     override fun uncaughtException(
         t: Thread?,
         e: Throwable?,

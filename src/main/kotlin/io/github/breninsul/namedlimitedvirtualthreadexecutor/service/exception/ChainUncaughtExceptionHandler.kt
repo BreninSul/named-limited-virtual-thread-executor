@@ -22,22 +22,18 @@ package io.github.breninsul.namedlimitedvirtualthreadexecutor.service.exception
 
 import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.Ordered
 
+/**
+ * This class implements a chain of uncaught exception handlers.
+ * It is used to handle uncaught exceptions in a chain-like manner
+ * allowing multiple handlers to process any given uncaught exception.
+ *
+ * @property handlers List of uncaught exception handlers
+ * @property sortedHandlers Sorted list of the uncaught exception handlers
+ * @constructor  constructs a new `ChainUncaughtExceptionHandler` instance sorting the
+ * handler list by their order if they implement Ordered interface.
+ */
 open class ChainUncaughtExceptionHandler(handlers: List<Thread.UncaughtExceptionHandler>) : Thread.UncaughtExceptionHandler {
-   protected val sortedHandlers = handlers.sortedWith(Comparator { o1, o2 ->
-        if (o1 is Ordered) {
-            if (o2 is Ordered) {
-                return@Comparator o1.order.compareTo(o2.order)
-            } else {
-                return@Comparator -1
-            }
-        } else {
-            if (o2 is Ordered) {
-                return@Comparator 1
-            } else {
-                return@Comparator 0
-            }
-        }
-    })
+   protected val sortedHandlers = handlers.sortedWith(Ordered.OrderedComparator)
 
     override fun uncaughtException(
         t: Thread?,

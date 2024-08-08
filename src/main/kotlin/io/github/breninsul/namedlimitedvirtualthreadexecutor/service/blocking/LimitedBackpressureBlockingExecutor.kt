@@ -27,6 +27,15 @@ import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.exception.U
 import java.lang.Thread.UncaughtExceptionHandler
 import java.util.concurrent.*
 
+/**
+ * LimitedBackpressureBlockingExecutor is an implementation of ExecutorService that provides thread pooling,
+ * limited parallel execution, and backpressure handling. It extends ThreadPoolExecutor class.
+ *
+ * @property maxParallelJobs The maximum number of parallel jobs that can be executed at a time.
+ * @property workQueue The blocking queue that holds the jobs to be executed.
+ * @property factory The thread factory used to create new threads.
+ * @property handler The handler for rejected execution of jobs.
+ */
 open class LimitedBackpressureBlockingExecutor(
      maxParallelJobs: Int,
      workQueue: BlockingQueue<Runnable?>,
@@ -34,9 +43,23 @@ open class LimitedBackpressureBlockingExecutor(
      handler: RejectedExecutionHandler,
 ) : ExecutorService by ThreadPoolExecutor(maxParallelJobs, maxParallelJobs, 0L, TimeUnit.MILLISECONDS, workQueue, factory, handler) {
 
+    /**
+     * The `Companion` class provides a static method to build a `LimitedBackpressureBlockingExecutor`.
+     * It also contains a protected property `WAITING_REJECTED_EXECUTOR` of type `WaitingRejectedExecutor`.
+     */
     companion object {
         protected val WAITING_REJECTED_EXECUTOR = WaitingRejectedExecutor()
 
+        /**
+         * Builds a virtual `LimitedBackpressureBlockingExecutor` with specified arguments.
+         *
+         * @param threadNamePrefix The prefix for the name of the thread.
+         * @param maxParallelJobs The maximum number of parallel jobs that can be executed at a time.
+         * @param uncaughtExceptionHandler The handler for uncaught exceptions. By default, it chains `LoggingUncaughtExceptionHandler` and `UnwrappingUncaughtExceptionHandler`.
+         * @param inheritThreadLocals Flag that determines whether the created threads should inherit thread locals. By default, it is `null`.
+         *
+         * @return A `LimitedBackpressureBlockingExecutor` with the specified settings.
+         */
         fun buildVirtual(
             threadNamePrefix: String,
             maxParallelJobs: Int,

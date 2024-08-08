@@ -25,7 +25,27 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.logging.Level
 import java.util.logging.Logger
 
+/**
+ * The `WaitingRejectedExecutor` is an implementation of the `RejectedExecutionHandler` interface for a `ThreadPoolExecutor`.
+ * If a task submission is rejected, this handler will try to put the task back into the executor's task queue,
+ * causing the submitter to block until space becomes available.
+ *
+ * This class is open, allowing for further customization via subclassing.
+ *
+ * @property logger An instance of `Logger` that is used for logging exceptions that may occur during the execution.
+ */
 open class WaitingRejectedExecutor : RejectedExecutionHandler {
+
+    /**
+     * Handles a task that cannot be accepted by the executor.
+     * If the task is unable to start because of execution rejection by the `ThreadPoolExecutor`,
+     * this method attempts to put the task back into the executor's task queue, causing the task submission
+     * to block until space becomes available.
+     *
+     * @param r the runnable task requested to execute
+     * @param executor the executor attempting to execute this task
+     * @throws InterruptedException if interrupted while waiting
+     */
     override fun rejectedExecution(
         r: Runnable,
         executor: ThreadPoolExecutor,
