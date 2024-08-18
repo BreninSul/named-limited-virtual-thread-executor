@@ -22,4 +22,15 @@ package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
+/**
+ * The [VirtualTreadExecutor] class represents a single instance of an executor service that uses virtual threads.
+ *
+ * This class implements the [ExecutorService] interface and delegates its functionality to the [Executors.newVirtualThreadPerTaskExecutor] method from the [Executors] class.
+ *
+ * Note that this class is an object, meaning it is a singleton and only one instance of it can exist.
+ *
+ * @see ExecutorService
+ * @see Executors.newVirtualThreadPerTaskExecutor
+ */
 object VirtualTreadExecutor : ExecutorService by Executors.newVirtualThreadPerTaskExecutor()

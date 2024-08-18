@@ -22,7 +22,22 @@ package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
 import java.util.concurrent.ThreadFactory
 
-interface CountedThreadFactory:ThreadFactory {
-    fun getActiveTasksCount():Long
-    fun getTotalTasksCount():Long
+/**
+ * CountedThreadFactory is an interface that extends the ThreadFactory interface.
+ * It represents a factory for creating threads with the ability to track the count of active and total tasks.
+ * The interface provides methods to retrieve the count of active tasks and the total count of tasks executed by the thread factory.
+ *
+ * Implementing classes should provide an implementation for the newThread method to create a new thread that executes the given task.
+ *
+ * The CountedThreadFactory interface extends the ThreadFactory interface and adds two additional methods:
+ * - getActiveTasksCount(): Long - Retrieves the count of active tasks in the current thread factory.
+ * - getTotalTasksCount(): Long - Retrieves the total count of tasks executed by the thread factory.
+ *
+ * Example usage:
+ * The CountedThreadFactory interface is used by classes such as VirtualTaskExecutor and VirtualNamedLimitedExecutorService
+ * to create threads and track the count of active and total tasks.
+ *
+ * @see ThreadFactory
+ */
+interface CountedThreadFactory:ThreadFactory,CountedTasksExecutor {
 }

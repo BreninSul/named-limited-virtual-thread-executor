@@ -20,15 +20,40 @@
 
 package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
+/**
+ * VirtualTaskExecutor is an open class that extends the CountedTaskExecutor interface.
+ * It is used to execute tasks on virtual threads with limited concurrency.
+ * The class takes a thread name prefix and an optional maximum number of parallel jobs as constructor parameters.
+ *
+ * @param threadNamePrefix The prefix for the name of the created virtual threads.
+ * @param maxParallelJobs The maximum number of parallel jobs that can be executed at a time. If null, no concurrency limit is imposed.
+ */
 open class VirtualTaskExecutor(threadNamePrefix: String, maxParallelJobs: Int? = null) : CountedTaskExecutor {
 
     protected open val virtualThreadFactory: CountedThreadFactory =
         VirtualNamedLimitedThreadFactory(threadNamePrefix, maxParallelJobs)
 
+    /**
+     * Executes the given task on a virtual thread.
+     *
+     * @param task The task to be executed.
+     */
     override fun execute(task: Runnable) {
             virtualThreadFactory.newThread(task).start()
     }
+
+    /**
+     * Retrieves the count of active tasks in the current thread factory.
+     *
+     * @return The count of active tasks.
+     */
     override fun getActiveTasksCount() = virtualThreadFactory.getActiveTasksCount()
+
+    /**
+     * Retrieves the total count of tasks executed by the VirtualTaskExecutor's thread factory.
+     *
+     * @return The total count of tasks executed.
+     */
     override fun getTotalTasksCount(): Long =virtualThreadFactory.getTotalTasksCount()
 
 }

@@ -10,18 +10,22 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.kapt") version kotlinVersion
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 group = "io.github.breninsul"
-version = "1.0.1"
+version = "1.0.2"
 
 val javaVersion = JavaVersion.VERSION_21
 
-java {
-    sourceCompatibility = javaVersion
+tasks.named<Jar>("javadocJar") {
+    from(tasks.named("dokkaJavadoc"))
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+
 java {
+    sourceCompatibility = javaVersion
     withJavadocJar()
     withSourcesJar()
 }

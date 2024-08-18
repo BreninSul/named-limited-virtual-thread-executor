@@ -23,6 +23,22 @@ package io.github.breninsul.namedlimitedvirtualthreadexecutor.service.exception
 import io.github.breninsul.namedlimitedvirtualthreadexecutor.service.Ordered
 import java.util.concurrent.ExecutionException
 
+/**
+ * The `UnwrappingUncaughtExceptionHandler` class is an implementation of the `Thread.UncaughtExceptionHandler` interface.
+ * This class is responsible for handling uncaught exceptions in threads.
+ * It specifically handles exceptions of type `ExecutionException` by unwrapping and re-throwing the cause of the exception if it exists.
+ *
+ * This class is open for further customization via subclassing.
+ *
+ * @constructor Creates a new instance of `UnwrappingUncaughtExceptionHandler`.
+ *
+ * @implements Thread.UncaughtExceptionHandler This class can handle uncaught exceptions in threads.
+ * @implements Ordered This class can be ordered.
+ *
+ * @property order The order in which the handler handles the exceptions. Defaults to 10.
+ *
+ * @see Thread.UncaughtExceptionHandler
+ */
 open class UnwrappingUncaughtExceptionHandler (): Thread.UncaughtExceptionHandler, Ordered {
     override val order: Int = 10
 

@@ -22,8 +22,20 @@ package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
 import org.springframework.core.task.TaskExecutor
 
-interface CountedTaskExecutor: TaskExecutor {
-    fun getActiveTasksCount():Long
-    fun getTotalTasksCount():Long
+/**
+ * The `CountedTaskExecutor` interface represents an executor for tasks that counts the number of active tasks and total tasks.
+ * It extends the `TaskExecutor` and `CountedThreads` interfaces.
+ *
+ * Implementing classes should provide an implementation for the `execute` method to execute the given task.
+ * The `getActiveTasksCount` method retrieves the count of active tasks in the executor, and the `getTotalTasksCount` method retrieves the total count of tasks executed by the executor
+ * .
+ *
+ * Example usage:
+ * The `CountedTaskExecutor` interface is used by classes such as `VirtualTaskExecutor` to execute tasks and track their count.
+ *
+ * @see TaskExecutor
+ * @see CountedTasksExecutor
+ */
+interface CountedTaskExecutor: TaskExecutor,CountedTasksExecutor {
 
 }

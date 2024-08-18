@@ -21,26 +21,10 @@
 package io.github.breninsul.namedlimitedvirtualthreadexecutor.service
 
 /**
- * The `Ordered` interface represents an object that has an order. It defines a single property `order` which represents the order of the object.
+ * CountedThreads is an interface that represents a collection of threads.
+ * It provides methods to retrieve the count of active tasks and total tasks.
  */
-interface Ordered {
-    val order: Int
-
-    object OrderedComparator : Comparator<Any> {
-        override fun compare(o1: Any?, o2: Any?): Int {
-            return if (o1 is Ordered) {
-                if (o2 is Ordered) {
-                    o1.order.compareTo(o2.order)
-                } else {
-                    -1
-                }
-            } else {
-                if (o2 is Ordered) {
-                    1
-                } else {
-                    0
-                }
-            }
-        }
-    }
+interface CountedTasksExecutor {
+    fun getActiveTasksCount():Long
+    fun getTotalTasksCount():Long
 }
