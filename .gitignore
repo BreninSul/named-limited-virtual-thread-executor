@@ -38,3 +38,9 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+
+**/.DS_Store
+.DS_Store
+/gradle.properties
+/with-dependency/gradle.properties
