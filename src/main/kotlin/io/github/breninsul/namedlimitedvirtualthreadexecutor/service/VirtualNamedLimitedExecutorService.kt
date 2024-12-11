@@ -42,6 +42,18 @@ open class VirtualNamedLimitedExecutorService(
         )
 ) : CountedExecutorService,
     ExecutorService by Executors.newThreadPerTaskExecutor(threadFactory) {
+
+    constructor(
+        threadNamePrefix: String,
+        uncaughtExceptionHandler: Thread.UncaughtExceptionHandler?,
+        maxParallelJobs: Int? = null,
+        inheritThreadLocals:Boolean?=null
+    ) : this(
+        threadNamePrefix,
+        maxParallelJobs,
+        VirtualNamedLimitedThreadFactory(threadNamePrefix, maxParallelJobs,uncaughtExceptionHandler,inheritThreadLocals)
+    )
+        
     /**
      * Retrieves the count of active tasks in the current thread factory.
      *
